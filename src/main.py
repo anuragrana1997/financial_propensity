@@ -21,7 +21,7 @@ features = df.columns[:-1]
 means = helperFunctions.mean_of_features(df, features)
 
 ''' pearson correlation matrix formation '''
-
+print("______________Pearson________________")
 pearson_cor_matrix = []
 for key_X in features:
     pearson_cor_matrix_row = []
@@ -36,7 +36,7 @@ for key_X in features:
 print(pearson_cor_matrix)
 
 ''' spearman correlation matrix formation '''
-
+print("______________Spearman________________")
 ranked_df = {}
 for key in features:
     ranked_df[key] = df[key].rank(method = "average")
@@ -55,6 +55,23 @@ for key_X in features:
     spearman_cor_matrix.append(spearman_cor_matrix_row)
 
 print(spearman_cor_matrix) 
+
+''' kendall correlation '''
+print("______________Kendall________________")
+kendall_cor_matrix = []
+for i in range(len(features)):
+    kendall_cor_matrix_row = []
+    for j in range(len(features)):
+        if i == j:
+            correlation_value = 1
+        elif j < i:
+            correlation_value = kendall_cor_matrix[j][i]
+        else:
+            correlation_value = helperFunctions.kendall_correlation(df, features[i], features[j])
+        kendall_cor_matrix_row.append(round(float(correlation_value), 2))
+    kendall_cor_matrix.append(kendall_cor_matrix_row)
+
+print(kendall_cor_matrix)
 
 
 

@@ -20,3 +20,32 @@ def mean_of_features(df, features):
     for key in features:
         means[key] = sum(df[key]) / len(df[key])
     return means
+
+def kendall_correlation(df, feature_X, feature_Y):
+    concordant = 0
+    discordant = 0
+    tie_X = 0
+    tie_Y = 0
+    for i in range(len(df[feature_X])):
+        for j in range(i+1, len(df[feature_X])):
+            diff_X = df[feature_X].iloc[j] - df[feature_X].iloc[i]
+            diff_Y = df[feature_Y].iloc[j] - df[feature_Y].iloc[i]
+
+            if diff_X == 0 and diff_Y == 0:
+                continue
+            elif diff_X == 0:
+                tie_X += 1
+            elif diff_Y == 0:
+                tie_Y += 1
+            elif diff_X * diff_Y > 0:
+                concordant += 1
+            else:
+                discordant += 1 
+    denominator = math.sqrt(
+        (concordant + discordant + tie_X) *
+        (concordant + discordant + tie_Y)
+    )
+
+    if denominator == 0:
+        return 0
+    return (concordant - discordant) / denominator
