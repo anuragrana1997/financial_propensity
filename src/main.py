@@ -1,6 +1,6 @@
 import pandas as pd
-import math
 import helperFunctions
+import graph
 
 df = pd.read_csv("../data/german_credit.csv")
 data = df.values.tolist()
@@ -73,5 +73,14 @@ for i in range(len(features)):
 
 print(kendall_cor_matrix)
 
+''' heatmaps ''' 
 
+pearson_matrix_df = pd.DataFrame(
+    pearson_cor_matrix,
+    index = features,
+    columns = features
+)
 
+graph.create_heatmap(pearson_cor_matrix, features, False, "pearson_heatmap.png")
+graph.create_heatmap(spearman_cor_matrix, features, False, "spearman_heatmap.png")
+graph.create_heatmap(kendall_cor_matrix, features, False, "kendall_heatmap.png")
