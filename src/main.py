@@ -1,6 +1,12 @@
 import pandas as pd
 import helperFunctions
 import graph
+import numpy as np
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
 df = pd.read_csv("../data/german_credit.csv")
 data = df.values.tolist()
@@ -84,3 +90,55 @@ pearson_matrix_df = pd.DataFrame(
 graph.create_heatmap(pearson_cor_matrix, features, False, "pearson_heatmap.png")
 graph.create_heatmap(spearman_cor_matrix, features, False, "spearman_heatmap.png")
 graph.create_heatmap(kendall_cor_matrix, features, False, "kendall_heatmap.png")
+
+''' VIF ''' 
+# here gave up on no library rule because of time constraints
+inverse_matrix = np.linalg.inv(pearson_cor_matrix)
+vif_values = np.diag(inverse_matrix)
+
+for feature, vif in zip(features, vif_values):
+    print(feature, round(vif, 2))
+
+# high valued VIF to be removed as there were none so nothing to remove
+removed_vif_features = []
+
+''' Logistic Regression '''
+
+df["bad_credit_risk"] = df["feature_25"].map({
+    1: 0,
+    2: 1
+})
+
+X = df[features]
+y = df["bad_credit_risk"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42,
+    stratify=y
+)
+
+scaler = StandardScaler()
+
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+model = LogisticRegression(max_iter=1000)
+
+model.fit(X_train_scaled, y_train)
+
+y_pred = model.predict(X_test_scaled)
+y_prob = model.predict_proba(X_test_scaled)[:, 1]
+
+print("Accuracy:", accuracy_score(y_test, y_pred))
+
+print("Confusion Matrix:")
+print(confusion_matrix(y_test, y_pred))
+
+print("Classification Report:")
+print(classification_report(y_test, y_pred))
+
+print("First 10 bad credit propensity scores:")
+print(y_prob[:10])
